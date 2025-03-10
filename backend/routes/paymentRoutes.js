@@ -1,12 +1,13 @@
 const express = require("express");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const Appointment = require("../models/Appointment");
-const authMiddleware = require("../middlewares/authMiddleware");
+// Fix the import path - use "middleware" (singular) instead of "middlewares" (plural)
+const { auth } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 // 📌 Process Payment
-router.post("/process", authMiddleware, async (req, res) => {
+router.post("/process", auth, async (req, res) => {
   try {
     const { appointmentId, amount, paymentMethodId } = req.body;
 

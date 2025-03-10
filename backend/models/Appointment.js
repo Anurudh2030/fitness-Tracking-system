@@ -1,32 +1,11 @@
-const express = require("express");
-const Appointment = require("../models/Appointment");
-const authMiddleware = require("../middleware/authMiddleware");
+const mongoose = require("mongoose");
 
-const router = express.Router();
+const AppointmentSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    trainer: { type: mongoose.Schema.Types.ObjectId, ref: "Trainer", required: true },
+    date: { type: Date, required: true },
+    timeSlot: { type: String, required: true },
+    status: { type: String, enum: ["Pending", "Confirmed", "Completed"], default: "Pending" }
+}, { timestamps: true });
 
-// 📌 Book an Appointment
-router.post("/book", authMiddleware, async (req, res) => {
-  try {
-    const { trainerId, date, timeSlot } = req.body;
-
-    if (!trainerId || !date || !timeSlot) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const newAppointment = new Appointment({
-      user: req.user.id,
-      trainer: trainerId,
-      date,
-      timeSlot,
-      status: "pending",
-    });
-
-    await newAppointment.save();
-    res.status(201).json({ message: "Appointment booked successfully", appointment: newAppointment });
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-});
-
-module.exports = mongoose.model("Appointment", appointmentSchema);
-
+module.exports = mongoose.model("Appointment", AppointmentSchema);
